@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PV React — Build / Run time</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --paper: #fffdf8;
+        --ink: #1c1915;
+        --muted: #5c564c;
+        --line: #ddd4c4;
+        --def: #1e4d3a;
+        --cons: #8a4b12;
+        --ex: #1e3d73;
+        --accent: #1e3d73;
+        --known: #1e4d3a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        font:
+          16px/1.5 "tahoma",
+          serif;
+        background: var(--bg);
+        color: var(--ink);
+        min-height: 100vh;
+      }
+      header {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 28px 20px 8px;
+      }
+      h1 {
+        font-size: 1.65rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+      }
+      .rule {
+        font-size: 0.95rem;
+        color: var(--muted);
+        margin: 0;
+      }
+      .rule strong {
+        color: var(--ink);
+        font-weight: 700;
+      }
+      nav {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 16px 20px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      nav input,
+      nav select {
+        font: inherit;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        color: var(--ink);
+        border-radius: 2px;
+      }
+      nav input {
+        flex: 1;
+        min-width: 180px;
+      }
+      button {
+        font:
+          13px/1.2 ui-sans-serif,
+          system-ui,
+          sans-serif;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        border: 1px solid var(--ink);
+        background: transparent;
+        color: var(--ink);
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      button:hover {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      button.primary {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      button.primary:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      button.ghost {
+        border-color: var(--line);
+        color: var(--muted);
+      }
+      button[aria-pressed="true"] {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .stats {
+        max-width: 880px;
+        margin: 12px auto 0;
+        padding: 0 20px;
+        font: 13px/1.4 "tahoma";
+        color: var(--muted);
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      main {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 16px 20px 80px;
+      }
+      .card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        padding: 28px 28px 22px;
+      }
+      .meta {
+        font:
+          12px/1.3 ui-sans-serif,
+          system-ui,
+          sans-serif;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .card h2 {
+        font-size: 1.45rem;
+        line-height: 1.3;
+        margin: 0 0 20px;
+        font-weight: 700;
+      }
+      .beat {
+        border-left: 3px solid currentColor;
+        padding: 10px 0 10px 14px;
+        margin: 0 0 12px;
+      }
+      .beat .label {
+        font:
+          11px/1 ui-sans-serif,
+          system-ui,
+          sans-serif;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+        font-weight: 700;
+      }
+      .beat p {
+        margin: 0;
+      }
+      .beat.def {
+        color: var(--def);
+      }
+      .beat.cons {
+        color: var(--cons);
+      }
+      .beat.ex {
+        color: var(--ex);
+      }
+      .beat.def p,
+      .beat.cons p,
+      .beat.ex p {
+        color: var(--ink);
+      }
+      .hint {
+        color: var(--muted);
+        font-style: italic;
+        margin: 8px 0 0;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+      }
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      details {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        padding: 12px 16px;
+      }
+      details summary {
+        cursor: pointer;
+        font-weight: 700;
+        list-style: none;
+      }
+      details summary::-webkit-details-marker {
+        display: none;
+      }
+      details .beats {
+        margin-top: 12px;
+      }
+      .cat-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .chip {
+        font:
+          11px/1 ui-sans-serif,
+          system-ui,
+          sans-serif;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        color: var(--muted);
+        padding: 7px 10px;
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      .chip[aria-pressed="true"] {
+        border-color: var(--ink);
+        color: var(--ink);
+        background: #ebe4d6;
+      }
+      kbd {
+        font:
+          11px ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+        border: 1px solid var(--line);
+        padding: 1px 5px;
+        border-radius: 2px;
+        color: var(--muted);
+      }
+      @media (max-width: 640px) {
+        .card {
+          padding: 20px 16px 16px;
+        }
+        .card h2 {
+          font-size: 1.22rem;
+        }
+      }
+      @media print {
+        nav,
+        .actions,
+        .stats {
+          display: none;
+        }
+        .card {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>PV React — nói 3 nhịp</h1>
+      <p class="rule">
+        Trọng điểm: <strong>React + Build time / Run time</strong>. Mỗi câu:
+        định nghĩa → 1 hệ quả → 1 ví dụ. Không đọc thuộc.
+      </p>
+    </header>
+
+    <nav>
+      <select id="cat"></select>
+      <input id="q" type="search" placeholder="Tìm câu hỏi…" />
+      <button type="button" id="mode-card" class="primary">Thẻ</button>
+      <button type="button" id="mode-list" class="ghost">Danh sách</button>
+      <button type="button" id="extra" aria-pressed="false">
+        Chỉ extra JD
+      </button>
+    </nav>
+    <div
+      class="cat-row"
+      id="chips"
+      style="max-width: 880px; margin: 8px auto 0; padding: 0 20px"
+    ></div>
+    <p class="stats" id="stats"></p>
+
+    <main id="main"></main>
+
+    <script>
+      const ITEMS = [
+        {
+          id: "p4",
+          extra: true,
+          cat: "Build / Run time",
+          q: "Build time vs Run time?",
+          def: "Build time là lúc docker/next build — ARG và NEXT_PUBLIC_* bị nhúng vào JS tĩnh. Run time là lúc Pod chạy — ENV trong container, server đọc process.env.",
+          cons: "Không đưa secret vào ARG hay NEXT_PUBLIC_ vì sẽ lộ trong bundle. Đổi biến public phải rebuild image; đổi secret runtime chỉ cần ENV mới rồi restart Pod.",
+          ex: "NEXT_PUBLIC_API_URL bake lúc build. DATABASE_PASSWORD / JWT_SECRET nằm K8s Secret, Next server đọc process.env lúc chạy.",
+        },
+        {
+          id: "p5",
+          extra: true,
+          cat: "Build / Run time",
+          q: "K8s ConfigMap/Secret nạp vào Pod thế nào?",
+          def: "Hai cách: biến môi trường, hoặc mount file volume.",
+          cons: "Env đọc một lần lúc process start — đổi phải restart Pod. File trên volume có thể đổi, nhưng Node không tự reload trừ khi fs.watch.",
+          ex: "Secret DB_PASSWORD → env. Feature flag ít nhạy có thể mount file JSON; app watch file thì không cần rebuild image.",
+        },
+        {
+          id: "r1",
+          cat: "React render",
+          q: "React render thế nào khi state đổi?",
+          def: "State đổi thì React schedule một lần render: chạy lại component, ra element tree mới, reconciliation so với tree cũ, commit những diff cần thiết vào DOM.",
+          cons: "Re-render không có nghĩa toàn bộ DOM bị thay.",
+          ex: "Counter từ 1 lên 2 — React chỉ cập nhật text node, không dựng lại cả trang.",
+        },
+        {
+          id: "r2",
+          cat: "React render",
+          q: "Re-render có phải DOM update không?",
+          def: "Re-render là React chạy lại component để tính UI mới trong JS.",
+          cons: "Nếu reconciliation thấy output không đổi, commit phase không đụng DOM.",
+          ex: "Parent setState nhưng child memo trả cùng props — DOM child đứng yên.",
+        },
+        {
+          id: "r3",
+          cat: "React render",
+          q: "Parent re-render thì child có re-render không?",
+          def: "Mặc định function child bị gọi lại mỗi khi parent render.",
+          cons: "React.memo cho phép bỏ qua child nếu props shallow-equal. Subscribe context/store vẫn render dù parent không đổi.",
+          ex: "Dashboard re-render vì filter — Widget memo với props ổn định không chạy lại.",
+        },
+        {
+          id: "r4",
+          cat: "React render",
+          q: "Reconciliation là gì? key để làm gì?",
+          def: "Quá trình so output UI mới với output trước để tìm thay đổi tối thiểu cần commit vào DOM.",
+          cons: "key giúp React nhận diện item giữa các lần render; key = index sai identity khi insert/reorder.",
+          ex: "Xóa item giữa list mà dùng index làm key — input của dòng dưới giữ nhầm giá trị dòng trên.",
+        },
+        {
+          id: "r5",
+          extra: true,
+          cat: "React render",
+          q: "React 18 batch state như thế nào?",
+          def: "Nhiều setState trong cùng event, timeout hay promise được gộp thành một render.",
+          cons: "UI không nhấp nháy từng bước; hiếm khi cần flushSync.",
+          ex: "Trong onClick gọi setCount và setOpen — một commit, không hai lần paint.",
+        },
+        {
+          id: "r6",
+          extra: true,
+          cat: "React render",
+          q: "Strict Mode render 2 lần là bug?",
+          def: "Chỉ ở dev, React cố ý mount → unmount → mount lại để bắt side effect không pure.",
+          cons: "Production render một lần. Đừng 'fix' bằng bỏ logic cleanup.",
+          ex: "useEffect fetch bị gọi hai lần ở dev — abort ở cleanup, không tắt Strict Mode.",
+        },
+        {
+          id: "m1",
+          cat: "Memo",
+          q: "React.memo là gì? Khi nào dùng?",
+          def: "HOC so sánh props nông; props không đổi thì skip render child.",
+          cons: "Hữu ích khi child nặng và parent hay render. So sánh props cũng tốn CPU — đừng bọc mọi component.",
+          ex: "Bảng 200 hàng, parent đổi tab — hàng memo với data ổn định không render lại.",
+        },
+        {
+          id: "m2",
+          cat: "Memo",
+          q: "useMemo là gì?",
+          def: "Cache kết quả tính toán cho đến khi dependency đổi.",
+          cons: "Cũng dùng để giữ reference object/array, tránh kích hoạt memo/effect con.",
+          ex: "Lọc 10k row theo keyword — useMemo([list, keyword]), không filter mỗi lần gõ chỗ khác.",
+        },
+        {
+          id: "m3",
+          cat: "Memo",
+          q: "useCallback là gì?",
+          def: "Cache chính function reference theo deps.",
+          cons: "Có giá trị khi callback xuống child memo, hoặc nằm trong dependency hook khác.",
+          ex: "onSelect truyền vào Row memo — không useCallback thì mỗi render parent tạo fn mới, memo vô hiệu.",
+        },
+        {
+          id: "m4",
+          cat: "Memo",
+          q: "useMemo khác useCallback thế nào?",
+          def: "useMemo cache giá trị trả về. useCallback cache function — tương đương useMemo(() => fn, deps).",
+          cons: "Nhầm tool thì cache sai thứ: giữ fn thì callback, giữ object/kết quả thì memo.",
+          ex: "columns = useMemo(() => [...], []) vs onSort = useCallback(() => {}, []).",
+        },
+        {
+          id: "m5",
+          cat: "Memo",
+          q: "Tại sao không lạm dụng memoization?",
+          def: "Giữ cache và theo dõi deps tốn bộ nhớ và CPU.",
+          cons: "Tính toán nhẹ thì memo còn chậm hơn và làm code rối. Đo Profiler trước.",
+          ex: "Cộng hai số trong render — không bọc useMemo.",
+        },
+        {
+          id: "m6",
+          cat: "Memo",
+          q: "Object/array mới có phá React.memo không?",
+          def: "So sánh mặc định là nông, theo reference.",
+          cons: "Inline {} [] () => {} mỗi render tạo reference mới → memo mất hiệu lực.",
+          ex: "style={{ margin: 8 }} trên child memo — mỗi lần parent render, child vẫn render.",
+        },
+        {
+          id: "h1",
+          cat: "Hooks",
+          q: "useEffect dùng để làm gì?",
+          def: "Đồng bộ React với hệ thống ngoài: network, subscription, timer, DOM API.",
+          cons: "Không dùng effect chỉ để tính derived state — sẽ thừa render và dễ lệch.",
+          ex: "Subscribe websocket, cleanup unsubscribe. fullName = first + last tính thẳng khi render, không effect.",
+        },
+        {
+          id: "h2",
+          cat: "Hooks",
+          q: "useEffect gây infinite loop vì sao?",
+          def: "Effect cập nhật state mà state đó nằm trong dependency, hoặc deps là object/fn tạo mới mỗi render.",
+          cons: "Component render không dừng, CPU 100%, UI đơ.",
+          ex: "useEffect(() => setFilters({ ...filters }), [filters]) — object mới mãi.",
+        },
+        {
+          id: "h3",
+          cat: "Hooks",
+          q: "useRef khác useState thế nào?",
+          def: "useState lưu state ảnh hưởng UI, cập nhật thì re-render. useRef giữ giá trị mutable, đổi .current không render.",
+          cons: "Dùng nhầm ref cho UI thì màn hình không cập nhật; dùng state cho timer ID thì render thừa.",
+          ex: "inputRef.current.focus(); lưu intervalId trong ref; prevCount trong ref.",
+        },
+        {
+          id: "h4",
+          cat: "Hooks",
+          q: "useState vs useReducer?",
+          def: "useState cho state đơn giản. useReducer khi nhiều field hoặc logic chuyển đổi theo action.",
+          cons: "Reducer tách logic ra, dễ test, tránh setState lồng nhau.",
+          ex: "isOpen dùng useState. Wizard form + validation + step dùng useReducer.",
+        },
+        {
+          id: "h5",
+          extra: true,
+          cat: "Hooks",
+          q: "useLayoutEffect khác useEffect?",
+          def: "useLayoutEffect chạy sync sau khi DOM mutate, trước paint. useEffect chạy sau paint.",
+          cons: "Layout effect block paint — chỉ khi phải đo DOM để tránh flicker.",
+          ex: "Tooltip đo vị trí rồi set toạ độ trước khi user thấy nhảy. Fetch thì vẫn useEffect.",
+        },
+        {
+          id: "h6",
+          extra: true,
+          cat: "Hooks",
+          q: "Derived state nên nhét useState không?",
+          def: "Nếu tính được từ props/state hiện có thì không lưu thêm bản sao.",
+          cons: "Hai nguồn sự thật dễ lệch khi một bên cập nhật.",
+          ex: "items.filter — tính lúc render. Chỉ store draft khi user đang sửa form.",
+        },
+        {
+          id: "h7",
+          extra: true,
+          cat: "Hooks",
+          q: "Cleanup trong useEffect làm gì?",
+          def: "Hủy việc đã đăng ký: unsubscribe, clear timer, abort fetch.",
+          cons: "Chạy trước effect lần sau và khi unmount — tránh leak và race.",
+          ex: "Gõ search nhanh: abort request cũ trong cleanup, kết quả cũ không đè kết quả mới.",
+        },
+        {
+          id: "s1",
+          cat: "State & Query",
+          q: "Phân biệt các loại state?",
+          def: "Local trong component. UI: modal/tab/filter. Server: data API có cache riêng. Global client: auth/theme.",
+          cons: "Nhét server state vào Redux/Zustand khi đã có TanStack Query thì cache/refetch phải tự viết lại.",
+          ex: "Theme trong Zustand. Danh sách job từ API trong useQuery. isModalOpen local.",
+        },
+        {
+          id: "s2",
+          cat: "State & Query",
+          q: "Zustand vs Redux Toolkit?",
+          def: "Zustand API mỏng, không bắt buộc Provider. RTK opinionated, middleware và DevTools mạnh cho hệ lớn.",
+          cons: "Cả hai có selector. Context không có selector — value đổi là mọi consumer render.",
+          ex: "Auth nhỏ: Zustand. Nhiều team, time-travel, side effect phức tạp: RTK.",
+        },
+        {
+          id: "s3",
+          cat: "State & Query",
+          q: "Context thay Zustand/Redux được không?",
+          def: "Context giải quyết dependency injection — truyền data xuống sâu không prop drilling.",
+          cons: "Không hoàn toàn thay store: thiếu selector, value mới re-render mọi subscriber.",
+          ex: "Theme/locale dùng Context. Giỏ hàng cập nhật liên tục thì store có selector.",
+        },
+        {
+          id: "s4",
+          cat: "State & Query",
+          q: "React Query giải quyết gì?",
+          def: "Quản lý server state: cache, staleTime, dedupe, refetch, retry, optimistic.",
+          cons: "Bỏ vòng useEffect + fetch + loading/error viết tay, hết race cơ bản.",
+          ex: "Hai widget cùng ['users'] — một request. Quay tab: hiện cache rồi background refetch.",
+        },
+        {
+          id: "s5",
+          extra: true,
+          cat: "State & Query",
+          q: "Lift state up khi nào?",
+          def: "Khi hai sibling trở lên cần cùng data hoặc handler, đưa state lên nearest common parent.",
+          cons: "Cây quá sâu và nhiều subscriber thì parent phình — chuyển store/context có selector.",
+          ex: "SearchBox và ResultList chia query — state ở page. 20 màn hình auth — Zustand.",
+        },
+        {
+          id: "q1",
+          cat: "State & Query",
+          q: "staleTime vs gcTime?",
+          def: "staleTime: data còn 'fresh' thì không refetch. gcTime: query inactive bao lâu thì xóa cache.",
+          cons: "staleTime mặc định 0 — luôn stale nhưng vẫn hiện cache rồi refetch nền. gcTime hết thì mất cache, vào lại phải fetch mới.",
+          ex: "Giá cổ phiếu staleTime: 0. Danh sách tỉnh staleTime: 24h. Rời trang, gcTime 5 phút rồi xóa.",
+        },
+        {
+          id: "q2",
+          cat: "State & Query",
+          q: "Mutation thành công rồi làm gì?",
+          def: "Ba hướng: ghi cache, invalidate, hoặc optimistic.",
+          cons: "Chọn sai thì UI lệch server hoặc refetch thừa.",
+          ex: "PATCH user trả object đủ → setQueryData. Xóa item ảnh hưởng nhiều list → invalidateQueries.",
+        },
+        {
+          id: "q3",
+          cat: "State & Query",
+          q: "Optimistic update chạy ra sao?",
+          def: "UI cập nhật trước khi server trả. Lưu snapshot → sửa cache → gọi API.",
+          cons: "Lỗi thì rollback snapshot. Thành công thì invalidate để khớp server.",
+          ex: "Like bài viết: +1 ngay. API fail → trả lại số cũ.",
+        },
+        {
+          id: "q4",
+          extra: true,
+          cat: "State & Query",
+          q: "Query key nên thiết kế thế nào?",
+          def: "Mảng từ rộng đến hẹp: ['jobs', { page, q }]. Key đổi là query khác.",
+          cons: "Sai key thì setQueryData/invalidate không trúng cache.",
+          ex: "Search 'react' và 'go' là hai cache riêng — gõ nhanh không đè nhầm.",
+        },
+        {
+          id: "q5",
+          extra: true,
+          cat: "State & Query",
+          q: "Race khi search/filter API?",
+          def: "Request cũ có thể về sau request mới và đè kết quả.",
+          cons: "User thấy data của từ khóa cũ. Query dedupe theo key; fetch tay cần AbortController.",
+          ex: "Gõ 'r' rồi 're' — abort 'r', chỉ nhận 're'.",
+        },
+        {
+          id: "t1",
+          cat: "TypeScript",
+          q: "unknown vs any?",
+          def: "any tắt type check. unknown bắt buộc narrow trước khi dùng.",
+          cons: "any để lỗi chạy lúc runtime. unknown đẩy lỗi về compile khi đụng API lạ.",
+          ex: "JSON.parse → unknown, check 'data' in x rồi mới x.data.",
+        },
+        {
+          id: "t2",
+          cat: "TypeScript",
+          q: "Generics dùng để làm gì?",
+          def: "Viết code tái sử dụng nhưng giữ quan hệ kiểu input ↔ output.",
+          cons: "Không generic thì hoặc any, hoặc copy type cho từng API.",
+          ex: "useQuery<Job[]> — data là Job[] chứ không phải unknown.",
+        },
+        {
+          id: "t3",
+          cat: "TypeScript",
+          q: "Union vs Intersection?",
+          def: "A | B là một trong hai. A & B phải thỏa cả A và B.",
+          cons: "Nhầm | và & thì type quá hẹp hoặc quá rộng, không compile đúng case.",
+          ex: "string | number. WithId & WithTimestamps cho entity DB.",
+        },
+        {
+          id: "t4",
+          cat: "TypeScript",
+          q: "Discriminated union lợi gì?",
+          def: "Gom type theo một field định danh, TS narrow theo từng nhánh.",
+          cons: "Tránh optional data? và error? cùng lúc — hết trạng thái không thể.",
+          ex: "{status:'ok', data} vs {status:'error', error} — switch status thì data chắc chắn có.",
+        },
+        {
+          id: "t5",
+          extra: true,
+          cat: "TypeScript",
+          q: "type vs interface?",
+          def: "interface cho object, có thể merge declaration. type cho union, mapped, utility.",
+          cons: "Public object hay dùng interface. Compose/union dùng type.",
+          ex: "interface ButtonProps. type Result = Ok | Err.",
+        },
+        {
+          id: "p1",
+          cat: "Perf & Next.js",
+          q: "LCP, CLS, INP và cách tối ưu?",
+          def: "LCP: sơn phần tử lớn nhất. CLS: layout nhảy. INP: trễ từ tương tác tới paint kế.",
+          cons: "Marketing site chậm LCP mất SEO/ads. CLS làm bấm nhầm nút. INP làm form đơ.",
+          ex: "LCP: preload hero WebP + SSR. CLS: width/height ảnh, skeleton. INP: debounce search, chia long task.",
+        },
+        {
+          id: "p2",
+          cat: "Perf & Next.js",
+          q: "Code splitting là gì?",
+          def: "Tách JS thành chunk, chỉ tải khi cần — dynamic import, route split.",
+          cons: "Giảm initial load. Split quá mảnh thì waterfall request.",
+          ex: "Trang Apply load form lúc vào /apply, không nhét vào bundle trang Jobs.",
+        },
+        {
+          id: "p3",
+          cat: "Perf & Next.js",
+          q: "Server Component vs Client Component?",
+          def: "Server Component render ở server, không gửi JS component đó. Client cần 'use client' khi có state, effect, event, browser API.",
+          cons: "Đánh 'use client' cả trang marketing thì mất lợi thế 0KB, LCP/INP xấu.",
+          ex: "Page job description: server. Nút Apply mở modal: client leaf nhỏ.",
+        },
+        {
+          id: "p6",
+          cat: "Perf & Next.js",
+          q: "Revalidate cache Next.js?",
+          def: "ISR theo thời gian (revalidate: 60). On-demand: revalidatePath / revalidateTag qua webhook.",
+          cons: "Chỉ ISR thì nội dung mới chờ hết TTL. Chỉ on-demand thì quên webhook là cache cũ mãi.",
+          ex: "JD Qualgo: ISR 60s + webhook CMS publish gọi revalidatePath.",
+        },
+        {
+          id: "p7",
+          extra: true,
+          cat: "Perf & Next.js",
+          q: "preload vs prefetch vs preconnect?",
+          def: "preload: tài nguyên trang hiện tại. prefetch: trang kế. preconnect: bắt tay origin thứ ba.",
+          cons: "preload lung tung tranh bandwidth với LCP.",
+          ex: "preload hero. prefetch /jobs. preconnect fonts.googleapis.com.",
+        },
+        {
+          id: "p8",
+          extra: true,
+          cat: "Perf & Next.js",
+          q: "Hydration mismatch vì sao?",
+          def: "HTML server khác HTML client lần đầu — Date.now, random, window không guard.",
+          cons: "React vứt tree, attach lại, nháy UI, warning hydrate.",
+          ex: "new Date().getHours() lúc render. Đưa vào useEffect sau mount, hoặc render giờ UTC cố định.",
+        },
+        {
+          id: "p9",
+          extra: true,
+          cat: "Perf & Next.js",
+          q: "next/image giúp LCP thế nào?",
+          def: "Resize, format hiện đại, lazy mặc định. Hero cần priority và sizes đúng breakpoint.",
+          cons: "Sai sizes thì tải ảnh quá lớn — LCP xấu dù đã dùng Image.",
+          ex: "Hero: priority, sizes='100vw' mobile và '~50vw' desktop nếu nửa màn.",
+        },
+        {
+          id: "ai2",
+          cat: "Resilience",
+          q: "Stream response Agent trên React?",
+          def: "SSE hoặc WebSocket nhận chunk, append vào state.",
+          cons: "Unmount không abort thì setState trên component chết. Buffer quá lớn thì jank.",
+          ex: "fetch stream → decoder → setText(t => t + chunk). AbortController lúc unmount.",
+        },
+        {
+          id: "e1",
+          cat: "Resilience",
+          q: "Tránh trắng màn hình khi child crash?",
+          def: "Error Boundary bắt lỗi render trong subtree, hiện fallback.",
+          cons: "Không bắt lỗi event/async — những đó cần try/catch và error state.",
+          ex: "Mỗi widget dashboard một boundary: một chart throw, 9 widget kia vẫn sống.",
+        },
+        {
+          id: "e2",
+          extra: true,
+          cat: "Resilience",
+          q: "Loading, empty, error UI?",
+          def: "Mọi màn data có ba trạng thái đó, cộng success.",
+          cons: "Thiếu empty thì 'trắng'. Thiếu error thì user nghĩ không có data. Skeleton sai size gây CLS.",
+          ex: "Jobs: skeleton đúng chiều card. Empty: 'Chưa có job, thử filter khác'. Error: Retry.",
+        },
+        {
+          id: "sit1",
+          cat: "Tình huống",
+          q: "Trang lag khi gõ search?",
+          def: "Mỗi phím vừa filter nặng vừa bắn API.",
+          cons: "INP xấu, race request, list dài block main thread.",
+          ex: "Debounce 300ms, abort cũ, query key theo q, virtualize 10k row.",
+        },
+        {
+          id: "sit2",
+          cat: "Tình huống",
+          q: "Chống double submit / double pay?",
+          def: "UI khóa nút lúc pending; server bắt trùng bằng idempotency key.",
+          cons: "Chỉ disable FE thì double-click mạng chậm vẫn hai request. Không tin mỗi UI.",
+          ex: "isPending disable Apply. POST kèm Idempotency-Key. Backend trả cùng payment id.",
+        },
+        {
+          id: "sit3",
+          cat: "Tình huống",
+          q: "Dashboard 10 widget độc lập?",
+          def: "Mỗi widget một query, skeleton, error boundary riêng.",
+          cons: "Một fetch chung fail là cả trang chết. Waterfall tuần tự thì chậm.",
+          ex: "10 useQuery song song, staleTime khác nhau — widget giá realtime, widget tin ISR.",
+        },
+        {
+          id: "sit4",
+          cat: "Tình huống",
+          q: "Refactor component 500 dòng?",
+          def: "Tách theo trách nhiệm: fetch, UI, hook business. Có test trước.",
+          cons: "Rewrite big-bang dễ mất edge case. Public props đổi thì caller vỡ.",
+          ex: "useJobList + JobTable + JobFilters. RTL: filter rồi thấy row.",
+        },
+        {
+          id: "sit5",
+          extra: true,
+          cat: "Tình huống",
+          q: "Form nội bộ nhiều field?",
+          def: "react-hook-form + schema (zod). Mặc định uncontrolled để ít re-render.",
+          cons: "Controlled cả form thì mỗi phím render 50 field.",
+          ex: "Apply form: RHF, zod email/phone, disable Submit khi invalid hoặc isPending.",
+        },
+        {
+          id: "sit9",
+          extra: true,
+          cat: "Tình huống",
+          q: "Portal dùng khi nào?",
+          def: "Render UI ra node ngoài parent, thường document.body, vẫn giữ React tree.",
+          cons: "Modal trong overflow:hidden bị cắt; z-index thua stacking context cha.",
+          ex: "createPortal(dialog, document.body) cho Apply modal trên careers site.",
+        },
+        {
+          id: "sit12",
+          extra: true,
+          cat: "Tình huống",
+          q: "Test FE nên viết mức nào?",
+          def: "RTL theo việc user làm được. Unit cho hook/pure. E2E ít, flow tới hạn.",
+          cons: "Snapshot UI giòn. Test implementation detail thì refactor là đỏ hết.",
+          ex: "Gõ search, thấy job title. E2E: điền Apply, submit, thấy success.",
+        },
+      ];
+
+      const CATS = ["Tất cả", ...[...new Set(ITEMS.map((i) => i.cat))]];
+      const knownKey = "pv-react-known";
+      const known = new Set(JSON.parse(localStorage.getItem(knownKey) || "[]"));
+
+      const state = {
+        cat: "Tất cả",
+        q: "",
+        extra: false,
+        mode: "card",
+        idx: 0,
+        show: false,
+      };
+
+      const $ = (id) => document.getElementById(id);
+
+      function saveKnown() {
+        localStorage.setItem(knownKey, JSON.stringify([...known]));
+      }
+
+      function filtered() {
+        const s = state.q.trim().toLowerCase();
+        return ITEMS.filter((i) => {
+          if (state.cat !== "Tất cả" && i.cat !== state.cat) return false;
+          if (state.extra && !i.extra) return false;
+          if (!s) return true;
+          return (i.q + i.def + i.cons + i.ex).toLowerCase().includes(s);
+        });
+      }
+
+      function beats(item) {
+        return `
+        <div class="beat def"><p class="label">Định nghĩa</p><p>${item.def}</p></div>
+        <div class="beat cons"><p class="label">Hệ quả</p><p>${item.cons}</p></div>
+        <div class="beat ex"><p class="label">Ví dụ</p><p>${item.ex}</p></div>`;
+      }
+
+      function render() {
+        const list = filtered();
+        $("stats").textContent =
+          `${list.length} câu · thuộc ${[...known].filter((id) => ITEMS.some((i) => i.id === id)).length}/${ITEMS.length} · Thẻ: Space lật · ← → chuyển · K đánh dấu thuộc`;
+
+        if (state.mode === "list") {
+          $("main").innerHTML = `<div class="list">${list
+            .map(
+              (item) => `
+          <details>
+            <summary>${item.q}${item.extra ? " · extra" : ""}${known.has(item.id) ? " · thuộc" : ""}</summary>
+            <div class="beats">${beats(item)}</div>
+          </details>`,
+            )
+            .join("")}</div>`;
+          return;
+        }
+
+        if (!list.length) {
+          $("main").innerHTML =
+            `<article class="card"><p class="hint">Không có câu nào khớp bộ lọc.</p></article>`;
+          return;
+        }
+
+        const idx = ((state.idx % list.length) + list.length) % list.length;
+        state.idx = idx;
+        const item = list[idx];
+        $("main").innerHTML = `
+        <article class="card">
+          <div class="meta">
+            <span>${idx + 1} / ${list.length} · ${item.cat}${item.extra ? " · extra JD" : ""}</span>
+            <span>${known.has(item.id) ? "đã thuộc" : ""}</span>
+          </div>
+          <h2>${item.q}</h2>
+          ${state.show ? beats(item) : `<p class="hint">Nói 3 nhịp trong đầu, rồi bấm Lật đáp án. Đừng nhìn trước.</p>`}
+          <div class="actions">
+            <button type="button" class="primary" id="flip">${state.show ? "Ẩn" : "Lật đáp án"}</button>
+            <button type="button" id="prev">Trước</button>
+            <button type="button" id="next">Sau</button>
+            <button type="button" id="know">${known.has(item.id) ? "Bỏ thuộc" : "Đã thuộc"}</button>
+          </div>
+        </article>`;
+
+        $("flip").onclick = () => {
+          state.show = !state.show;
+          render();
+        };
+        $("prev").onclick = () => {
+          state.idx -= 1;
+          state.show = false;
+          render();
+        };
+        $("next").onclick = () => {
+          state.idx += 1;
+          state.show = false;
+          render();
+        };
+        $("know").onclick = () => {
+          if (known.has(item.id)) known.delete(item.id);
+          else known.add(item.id);
+          saveKnown();
+          render();
+        };
+      }
+
+      $("cat").innerHTML = CATS.map((c) => `<option>${c}</option>`).join("");
+      $("chips").innerHTML = CATS.map(
+        (c) =>
+          `<button type="button" class="chip" data-cat="${c}" aria-pressed="${c === "Tất cả"}">${c}</button>`,
+      ).join("");
+
+      $("cat").onchange = (e) => {
+        state.cat = e.target.value;
+        state.idx = 0;
+        state.show = false;
+        syncChips();
+        render();
+      };
+      $("q").oninput = (e) => {
+        state.q = e.target.value;
+        state.idx = 0;
+        state.show = false;
+        render();
+      };
+      $("extra").onclick = () => {
+        state.extra = !state.extra;
+        $("extra").setAttribute("aria-pressed", String(state.extra));
+        state.idx = 0;
+        state.show = false;
+        render();
+      };
+      $("mode-card").onclick = () => {
+        state.mode = "card";
+        $("mode-card").className = "primary";
+        $("mode-list").className = "ghost";
+        render();
+      };
+      $("mode-list").onclick = () => {
+        state.mode = "list";
+        $("mode-list").className = "primary";
+        $("mode-card").className = "ghost";
+        render();
+      };
+      $("chips").onclick = (e) => {
+        const btn = e.target.closest("[data-cat]");
+        if (!btn) return;
+        state.cat = btn.dataset.cat;
+        $("cat").value = state.cat;
+        state.idx = 0;
+        state.show = false;
+        syncChips();
+        render();
+      };
+
+      function syncChips() {
+        $("chips")
+          .querySelectorAll("[data-cat]")
+          .forEach((el) => {
+            el.setAttribute(
+              "aria-pressed",
+              String(el.dataset.cat === state.cat),
+            );
+          });
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (state.mode !== "card") return;
+        if (e.target.matches("input, select, textarea")) return;
+        if (e.code === "Space") {
+          e.preventDefault();
+          state.show = !state.show;
+          render();
+        }
+        if (e.key === "ArrowRight") {
+          state.idx += 1;
+          state.show = false;
+          render();
+        }
+        if (e.key === "ArrowLeft") {
+          state.idx -= 1;
+          state.show = false;
+          render();
+        }
+        if (e.key === "k" || e.key === "K") {
+          const list = filtered();
+          if (!list.length) return;
+          const item =
+            list[((state.idx % list.length) + list.length) % list.length];
+          if (known.has(item.id)) known.delete(item.id);
+          else known.add(item.id);
+          saveKnown();
+          render();
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>
